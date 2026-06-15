@@ -29,13 +29,14 @@
     background:linear-gradient(180deg,rgba(25,25,25,.97) 0%,transparent 100%);
     border-bottom:1px solid var(--border);
   }
-  #hud-left { display:flex; align-items:center; gap:22px; }
+  #hud-left { display:flex; align-items:center; gap:22px; padding-left:96px; }
   .back-home {
+    position:fixed; top:14px; left:24px; z-index:100;
     display:inline-flex; align-items:center; gap:6px;
     text-decoration:none; color:var(--grey);
     font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
     padding:7px 12px; border:1px solid var(--border); border-radius:6px;
-    background:rgba(40,40,40,.6); transition:all .15s ease;
+    background:rgba(40,40,40,.85); backdrop-filter:blur(4px); transition:all .15s ease;
   }
   .back-home:hover { color:var(--offwhite); border-color:var(--pink); background:rgba(244,55,100,.1); }
   .back-home span { font-size:13px; line-height:1; }
@@ -166,12 +167,12 @@
 </style>
 </head>
 <body>
+<a href="index.html" class="back-home" title="Back to homepage"><span>←</span>Home</a>
 <canvas id="stars"></canvas>
 
 <!-- HUD -->
 <div id="hud">
   <div id="hud-left">
-    <a href="index.html" class="back-home" title="Back to homepage"><span>←</span>Home</a>
     <svg id="logo-svg" viewBox="0 0 30 30" fill="none">
       <polygon points="15,2 28,26 2,26" fill="none" stroke="#F43764" stroke-width="2" opacity=".9"/>
       <polygon points="15,9 24,24 6,24" fill="#F43764" opacity=".18"/>
