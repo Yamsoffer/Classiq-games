@@ -152,7 +152,7 @@
 
   /* game over */
   #go-score { font-size:54px; font-weight:900; color:var(--lime); text-shadow:0 0 28px rgba(215,247,91,.35); margin-bottom:2px; }
-  #go-lbl { font-size:8px; font-weight:700; letter-spacing:.25em; color:var(--dim); margin-bottom:8px; }
+  .go-lbl { font-size:8px; font-weight:700; letter-spacing:.25em; color:var(--dim); margin-bottom:8px; }
   #go-gates { font-size:13px; font-weight:700; color:var(--teal); letter-spacing:.1em; margin-bottom:28px; }
 
   /* reveal */
@@ -183,6 +183,19 @@
   .rev-support { font-size:clamp(13px,1.6vw,17px); font-weight:400; color:rgba(201,203,192,.55); text-align:center; max-width:500px; line-height:1.7; margin-bottom:44px; animation:punchIn .6s .35s cubic-bezier(.16,1,.3,1) both; }
   .rev-support strong { color:var(--offwhite); font-weight:700; }
   .rev-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; animation:punchIn .5s .5s cubic-bezier(.16,1,.3,1) both; }
+
+  /* win / measurement */
+  #meas-hist { display:flex; align-items:flex-end; gap:9px; height:130px; margin:6px 0 16px; }
+  .mbar { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; width:36px; height:100%; }
+  .mbar .bar { width:22px; min-height:2px; background:var(--teal); border-radius:2px 2px 0 0; transition:height .9s cubic-bezier(.16,1,.3,1); }
+  .mbar.win .bar { background:var(--lime); box-shadow:0 0 18px rgba(215,247,91,.55); }
+  .mbar .lbl { font-size:9px; font-weight:700; letter-spacing:.04em; color:var(--dim); font-family:monospace; }
+  .mbar.win .lbl { color:var(--lime); }
+  .mbar .pct { font-size:8px; font-weight:700; color:var(--dim); }
+  .mbar.win .pct { color:var(--lime); }
+  #win-note { font-size:12px; color:rgba(201,203,192,.7); margin-bottom:24px; text-align:center; max-width:440px; line-height:1.6; }
+  #win-note b { color:var(--lime); font-weight:700; }
+  #win-score { font-size:46px; font-weight:900; color:var(--lime); text-shadow:0 0 28px rgba(215,247,91,.35); line-height:1; }
 </style>
 </head>
 <body>
@@ -209,8 +222,8 @@
         <div class="hud-val" id="level-val">1</div>
       </div>
       <div class="hud-stat" style="align-items:flex-end">
-        <div class="hud-lbl">GATES</div>
-        <div class="hud-val" id="gates-val">0</div>
+        <div class="hud-lbl">GROVER</div>
+        <div class="hud-val" id="gates-val">0/31</div>
       </div>
     </div>
   </div>
@@ -224,7 +237,7 @@
   <div id="circuit-panel">
     <div id="circuit-title">YOUR CIRCUIT</div>
     <div id="circuit-canvas-wrap">
-      <canvas id="circuitCanvas" width="252" height="120"></canvas>
+      <canvas id="circuitCanvas" width="252" height="150"></canvas>
     </div>
     <div id="circuit-footer">
       <div id="last-gate-name"></div>
@@ -238,18 +251,16 @@
 <div class="screen" id="start-screen">
   <div class="eyebrow">CLASSIQ · <em>INTERNAL LAUNCH</em></div>
   <div class="big-title">Q-<span class="lm">CIRCUIT</span></div>
-  <div class="sub-line">EAT GATES. BUILD A QUANTUM CIRCUIT.</div>
+  <div class="sub-line">BUILD GROVER'S ALGORITHM · 3 QUBITS · SEARCH FOR |111⟩</div>
   <div class="legend">
-    <div class="legend-hdr">THE GATES</div>
-    <div class="leg-row"><div class="leg-gate" style="background:rgba(215,247,91,.15);border:1.5px solid #d7f75b;color:#d7f75b">H</div>Hadamard<span class="leg-pts">10</span></div>
-    <div class="leg-row"><div class="leg-gate" style="background:rgba(17,157,164,.15);border:1.5px solid #119DA4;color:#119DA4">X</div>Pauli-X<span class="leg-pts">10</span></div>
-    <div class="leg-row"><div class="leg-gate" style="background:rgba(12,116,137,.15);border:1.5px solid #0C7489;color:#0C7489">T</div>T Gate<span class="leg-pts">20</span></div>
-    <div class="leg-row"><div class="leg-gate" style="background:rgba(201,203,192,.1);border:1.5px solid #C9CBC0;color:#C9CBC0">Z</div>Pauli-Z<span class="leg-pts">10</span></div>
-    <div class="leg-row"><div class="leg-gate" style="background:rgba(215,247,91,.1);border:1.5px solid #d7f75b;color:#d7f75b;font-size:9px">CX</div>CNOT<span class="leg-pts">30</span></div>
-    <div class="leg-row"><div class="leg-gate leg-error">✕</div>Error gate — AVOID<span class="leg-pts" style="color:var(--pink)">–1 HP</span></div>
+    <div class="legend-hdr">EAT THE GATES IN SEQUENCE</div>
+    <div class="leg-row"><div class="leg-gate" style="background:rgba(215,247,91,.15);border:1.5px solid #d7f75b;color:#d7f75b">H</div>Hadamard — superposition<span class="leg-pts">10</span></div>
+    <div class="leg-row"><div class="leg-gate" style="background:rgba(17,157,164,.15);border:1.5px solid #119DA4;color:#119DA4">X</div>Pauli-X — bit flip<span class="leg-pts">10</span></div>
+    <div class="leg-row"><div class="leg-gate" style="background:rgba(244,55,100,.15);border:1.5px solid #F43764;color:#F43764;font-size:8px">CCZ</div>Controlled-Z — oracle & mirror<span class="leg-pts">40</span></div>
+    <div class="leg-row"><div class="leg-gate leg-error">✕</div>Decoherence — AVOID<span class="leg-pts" style="color:var(--pink)">–1 HP</span></div>
   </div>
   <button class="btn" id="start-btn">RUN CIRCUIT</button>
-  <div class="hint">ARROW KEYS / WASD · EAT GATES TO GROW · AVOID ✕ ERROR GATES</div>
+  <div class="hint">ARROW KEYS / WASD · GRAB THE GLOWING GATE · BUILD H → ORACLE → DIFFUSION</div>
 </div>
 
 <!-- GAME OVER -->
@@ -257,11 +268,26 @@
   <div class="eyebrow">CLASSIQ · <em>Q-CIRCUIT</em></div>
   <div class="big-title" style="margin-bottom:20px">CIRCUIT<br><span class="lm">COLLAPSED</span></div>
   <div id="go-score">0</div>
-  <div id="go-lbl">FINAL SCORE</div>
+  <div class="go-lbl">FINAL SCORE</div>
   <div id="go-gates">BUILT <span id="go-gates-n">0</span> GATES</div>
   <div class="btn-row">
     <button class="btn" id="restart-btn">RESTART</button>
     <button class="btn btn-ghost" id="show-reveal">THE PUNCHLINE →</button>
+  </div>
+</div>
+
+<!-- WIN / GROVER COMPLETE -->
+<div class="screen hidden" id="win-screen">
+  <div class="eyebrow">CLASSIQ · <em>GROVER-3 COMPLETE</em></div>
+  <div class="big-title" style="margin-bottom:6px">SOLUTION<br><span class="lm">FOUND</span></div>
+  <div class="sub-line">MEASUREMENT · 1024 SHOTS</div>
+  <div id="meas-hist"></div>
+  <div id="win-note">Your circuit amplified <b>|111⟩</b> to ~94.5% probability in 2 Grover iterations — exactly the optimal number for 3 qubits.</div>
+  <div class="go-lbl">FINAL SCORE</div>
+  <div id="win-score">0</div>
+  <div class="btn-row" style="margin-top:24px">
+    <button class="btn" id="win-again">PLAY AGAIN</button>
+    <button class="btn btn-ghost" id="win-reveal">THE PUNCHLINE →</button>
   </div>
 </div>
 
@@ -296,14 +322,41 @@ const C = {
 };
 
 // ── GATE DEFINITIONS ───────────────────────────────────────────────────────
-const GATES = [
-  { id:'H',  label:'H',  name:'Hadamard',  desc:'Creates superposition.\n|0⟩ → (|0⟩+|1⟩)/√2', color:C.lime,    pts:10  },
-  { id:'X',  label:'X',  name:'Pauli-X',   desc:'Quantum NOT gate.\nFlips |0⟩↔|1⟩',          color:C.teal,    pts:10  },
-  { id:'Z',  label:'Z',  name:'Pauli-Z',   desc:'Phase flip gate.\n|1⟩ → −|1⟩',              color:C.grey,    pts:10  },
-  { id:'T',  label:'T',  name:'T Gate',    desc:'π/8 phase rotation.\nEssential for universality', color:C.deepTeal, pts:20 },
-  { id:'CX', label:'CX', name:'CNOT',      desc:'Entangles two qubits.\nControl + Target',    color:C.lime,    pts:30  },
+const GDEF = {
+  H:   { id:'H',   label:'H',   name:'Hadamard',  color:C.lime, pts:10,
+         desc:'Superposition. Puts each qubit into an equal mix of |0⟩ and |1⟩.' },
+  X:   { id:'X',   label:'X',   name:'Pauli-X',   color:C.teal, pts:10,
+         desc:'Bit flip. Used in the diffuser to reflect about |000⟩.' },
+  CCZ: { id:'CCZ', label:'CCZ', name:'Controlled-Z (CCZ)', color:C.pink, pts:40,
+         desc:'3-qubit phase flip. The oracle marks |111⟩ and the diffuser mirrors it.' },
+};
+
+// ── GROVER-3 ALGORITHM (target |111⟩, 2 iterations = optimal) ───────────────
+// Each column is one "moment" of the circuit; gates within a column act in parallel.
+const SUP  = [{id:'H',q:[0]},{id:'H',q:[1]},{id:'H',q:[2]}];
+const XALL = [{id:'X',q:[0]},{id:'X',q:[1]},{id:'X',q:[2]}];
+const CCZ  = [{id:'CCZ',q:[0,1,2]}];
+const DIFFUSION = [
+  { phase:'Diffusion', gates:SUP },
+  { phase:'Diffusion', gates:XALL },
+  { phase:'Diffusion', gates:CCZ },
+  { phase:'Diffusion', gates:XALL },
+  { phase:'Diffusion', gates:SUP },
 ];
-const ERROR_GATE = { id:'ERR', label:'✕', name:'Error Gate', desc:'Decoherence! Avoid these.', color:C.pink, pts:-1 };
+const GROVER_COLUMNS = [
+  { phase:'Superposition', gates:SUP },
+  { phase:'Oracle ①', gates:CCZ },
+  ...DIFFUSION.map(c=>({phase:'Diffusion ①', gates:c.gates})),
+  { phase:'Oracle ②', gates:CCZ },
+  ...DIFFUSION.map(c=>({phase:'Diffusion ②', gates:c.gates})),
+];
+// Flatten columns into an ordered list of single placements the player builds.
+const STEPS = [];
+GROVER_COLUMNS.forEach((col,ci)=>{
+  col.gates.forEach(g=>STEPS.push({ col:ci, id:g.id, q:g.q, phase:col.phase }));
+});
+const TOTAL_STEPS = STEPS.length;
+function neededDef(){ return buildIndex < TOTAL_STEPS ? GDEF[STEPS[buildIndex].id] : null; }
 
 // ── GRID ───────────────────────────────────────────────────────────────────
 const CELL = 22;
@@ -331,7 +384,7 @@ window.addEventListener('resize', () => { setupGrid(); });
 let state = 'start';
 let snake, dir, nextDir, food, errorGates, gatesEaten, score, level, lives;
 let moveTimer, moveInterval;
-let circuit = []; // array of gate ids eaten
+let buildIndex = 0; // how many Grover steps have been built
 let particles = [];
 let flashCell = null, flashTimer = 0;
 let errorFlash = false, errorFlashTimer = 0;
@@ -342,10 +395,11 @@ function initGame() {
   dir = {x:1,y:0}; nextDir = {x:1,y:0};
   food = []; errorGates = [];
   gatesEaten = 0; score = 0; level = 1; lives = 3;
-  circuit = []; particles = [];
+  buildIndex = 0; particles = [];
   moveInterval = 160;
   spawnFood(2); spawnErrors(1);
   updateHUD();
+  updateBuildInfo();
   drawCircuit();
 }
 
@@ -365,11 +419,18 @@ function randFreeCell() {
   return c;
 }
 function spawnFood(n=1) {
+  const gate = neededDef();
+  if(!gate) return;
   for(let i=0;i<n;i++){
     const c = randFreeCell();
-    const gate = GATES[Math.floor(Math.random()*GATES.length)];
     food.push({...c, gate});
   }
+}
+// Keep every food item showing the gate the algorithm needs next.
+function refreshFood() {
+  const gate = neededDef();
+  if(!gate){ food = []; return; }
+  food.forEach(f=>{ f.gate = gate; });
 }
 function spawnErrors(n=1) {
   for(let i=0;i<n;i++){
@@ -410,27 +471,29 @@ function step() {
 
   snake.unshift(head);
 
-  // Food collision
+  // Food collision — building the next Grover step
   const foodIdx = food.findIndex(f=>f.x===head.x&&f.y===head.y);
   if(foodIdx !== -1) {
     const eaten = food[foodIdx];
     food.splice(foodIdx,1);
+    buildIndex++;                       // advance the algorithm
     gatesEaten++;
     score += eaten.gate.pts * level;
-    circuit.push(eaten.gate);
     flashCell = {...head}; flashTimer = 12;
     spawnParticles(head.x*CELL+CELL/2, head.y*CELL+CELL/2, eaten.gate.color, 16);
-    // Show gate info
-    document.getElementById('last-gate-name').textContent = eaten.gate.name;
-    document.getElementById('last-gate-desc').textContent = eaten.gate.desc;
     // Level up every 5 gates
     if(gatesEaten % 5 === 0) {
       level++;
       moveInterval = Math.max(60, moveInterval - 15);
       spawnErrors(1);
     }
-    spawnFood(1);
-    updateHUD(); drawCircuit();
+    if(buildIndex >= TOTAL_STEPS){
+      updateHUD(); updateBuildInfo(eaten.gate); drawCircuit();
+      win(); return;                    // Grover complete!
+    }
+    refreshFood();                      // remaining food shows the new needed gate
+    if(food.length < 2) spawnFood(2 - food.length);
+    updateHUD(); updateBuildInfo(eaten.gate); drawCircuit();
     // Don't pop — snake grows
   } else {
     snake.pop();
@@ -452,10 +515,61 @@ function die() {
   document.getElementById('gameover-screen').classList.remove('hidden');
 }
 
+function win() {
+  state = 'won';
+  clearTimeout(moveTimer);
+  score += 500 * level;            // completion bonus
+  updateHUD();
+  spawnParticles(GW/2, GH/2, C.lime, 40);
+  document.getElementById('win-score').textContent = score.toLocaleString();
+  renderHistogram();
+  document.getElementById('win-screen').classList.remove('hidden');
+}
+
+// Ideal Grover-3 measurement after 2 iterations: |111⟩ ≈ 94.5%, others share the rest.
+function renderHistogram() {
+  const hist = document.getElementById('meas-hist');
+  hist.innerHTML = '';
+  const marked = 7;                          // |111⟩
+  const probs = [];
+  for(let i=0;i<8;i++) probs.push(i===marked ? 0.9453 : 0.0078);
+  const maxP = Math.max(...probs);
+  probs.forEach((p,i) => {
+    const bin = ('000' + i.toString(2)).slice(-3);
+    const isWin = i === marked;
+    const el = document.createElement('div');
+    el.className = 'mbar' + (isWin ? ' win' : '');
+    el.innerHTML = `<div class="pct">${(p*100).toFixed(p>=0.1?0:1)}%</div>`
+                 + `<div class="bar" style="height:0"></div>`
+                 + `<div class="lbl">${bin}</div>`;
+    hist.appendChild(el);
+    const bar = el.querySelector('.bar');
+    setTimeout(()=>{ bar.style.height = (p/maxP*96) + 'px'; }, 60 + i*40);
+  });
+}
+
 function updateHUD() {
   document.getElementById('score-val').textContent = score.toLocaleString();
   document.getElementById('level-val').textContent = level;
-  document.getElementById('gates-val').textContent = gatesEaten;
+  document.getElementById('gates-val').textContent = buildIndex + '/' + TOTAL_STEPS;
+}
+
+// Update the circuit title (current phase) + footer (what's next)
+function updateBuildInfo(placedDef) {
+  const titleEl = document.getElementById('circuit-title');
+  const nameEl  = document.getElementById('last-gate-name');
+  const descEl  = document.getElementById('last-gate-desc');
+  if(buildIndex >= TOTAL_STEPS){
+    titleEl.textContent = 'GROVER-3 · COMPLETE';
+    nameEl.textContent  = 'Algorithm complete ✓';
+    descEl.textContent  = 'Measure → |111⟩ with ~94.5% probability.';
+    return;
+  }
+  const step = STEPS[buildIndex];
+  const nd = GDEF[step.id];
+  titleEl.textContent = 'GROVER-3 · ' + step.phase;
+  nameEl.textContent  = 'NEXT → ' + nd.name + '  ·  q' + step.q.join(',');
+  descEl.textContent  = placedDef ? placedDef.desc : nd.desc;
 }
 
 // ── PARTICLES ─────────────────────────────────────────────────────────────
@@ -491,66 +605,88 @@ function drawGateBox(ctx2, x, y, size, gate, alpha=1, glow=false) {
   ctx2.restore();
 }
 
-// ── DRAW CIRCUIT ──────────────────────────────────────────────────────────
+// ── DRAW CIRCUIT (Grover-3 blueprint that fills as you build) ───────────────
+const FAINT = 'rgba(201,203,192,0.22)';
 function drawCircuit() {
   const w = circCan.width, h = circCan.height;
   circCtx.clearRect(0,0,w,h);
 
-  const numQubits = 2;
-  const lineY = [h*0.38, h*0.72];
-  const startX = 28, gateSize = 22, gateGap = 6;
-  const maxVisible = Math.floor((w - startX - 10) / (gateSize + gateGap));
+  const lineY = [h*0.30, h*0.52, h*0.74];
+  const startX = 28;
+  const nCols = GROVER_COLUMNS.length;
+  const colW = (w - startX - 10) / nCols;
+  const gateSize = Math.min(15, colW - 3);
 
-  // Qubit lines
+  // Qubit lines + labels
   lineY.forEach((y, qi) => {
-    circCtx.strokeStyle = 'rgba(201,203,192,0.18)';
-    circCtx.lineWidth = 1.5;
-    circCtx.beginPath(); circCtx.moveTo(startX-8,y); circCtx.lineTo(w-8,y); circCtx.stroke();
-    // Qubit label
+    circCtx.strokeStyle = 'rgba(201,203,192,0.16)';
+    circCtx.lineWidth = 1.2;
+    circCtx.beginPath(); circCtx.moveTo(startX-8,y); circCtx.lineTo(w-6,y); circCtx.stroke();
     circCtx.fillStyle = 'rgba(201,203,192,0.4)';
-    circCtx.font = '700 9px Lato'; circCtx.textAlign='right'; circCtx.textBaseline='middle';
-    circCtx.fillText(`q${qi}`, startX-12, y);
+    circCtx.font = '700 8px Lato'; circCtx.textAlign='right'; circCtx.textBaseline='middle';
+    circCtx.fillText(`q${qi}`, startX-11, y);
   });
 
-  // Draw gates
-  const visible = circuit.slice(-maxVisible);
-  visible.forEach((gate, i) => {
-    const x = startX + i*(gateSize+gateGap);
-    const isCNOT = gate.id === 'CX';
-    const isLast = i === visible.length - 1;
-
-    if(isCNOT) {
-      // CNOT spans both qubits
-      const y0 = lineY[0] - gateSize/2;
-      const y1 = lineY[1] + gateSize/2;
-      // Vertical line
-      circCtx.strokeStyle = gate.color + 'aa';
-      circCtx.lineWidth = 1.5;
-      circCtx.beginPath(); circCtx.moveTo(x+gateSize/2,y0+gateSize); circCtx.lineTo(x+gateSize/2,y1-gateSize); circCtx.stroke();
-      // Control dot
-      circCtx.fillStyle = gate.color;
-      circCtx.shadowBlur = isLast?10:0; circCtx.shadowColor=gate.color;
-      circCtx.beginPath(); circCtx.arc(x+gateSize/2, lineY[0], 4, 0, Math.PI*2); circCtx.fill();
-      // Target circle
-      circCtx.shadowBlur=0;
-      circCtx.strokeStyle = gate.color; circCtx.lineWidth=1.5;
-      circCtx.beginPath(); circCtx.arc(x+gateSize/2, lineY[1], 7, 0, Math.PI*2); circCtx.stroke();
-      circCtx.beginPath(); circCtx.moveTo(x+gateSize/2-7,lineY[1]); circCtx.lineTo(x+gateSize/2+7,lineY[1]); circCtx.stroke();
-      circCtx.beginPath(); circCtx.moveTo(x+gateSize/2,lineY[1]-7); circCtx.lineTo(x+gateSize/2,lineY[1]+7); circCtx.stroke();
-    } else {
-      const qLine = i % 2; // alternate qubits
-      const gy = lineY[qLine] - gateSize/2;
-      circCtx.shadowBlur = isLast ? 12 : 0; circCtx.shadowColor = gate.color;
-      drawGateBox(circCtx, x, gy, gateSize, gate, 1, isLast);
-      circCtx.shadowBlur=0;
-    }
+  // Iterate placements in the same order as STEPS so step indices line up
+  let stepCounter = 0;
+  GROVER_COLUMNS.forEach((col, ci) => {
+    const cx = startX + ci*colW + colW/2;
+    col.gates.forEach(g => {
+      const myStep = stepCounter++;
+      const built  = myStep < buildIndex;
+      const isNext = myStep === buildIndex;
+      drawStepGate(cx, lineY, gateSize, g, built, isNext);
+    });
   });
+}
 
-  // Empty state hint
-  if(circuit.length === 0) {
-    circCtx.fillStyle = 'rgba(201,203,192,0.2)';
-    circCtx.font = '700 10px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
-    circCtx.fillText('EAT GATES TO BUILD YOUR CIRCUIT', w/2, h/2);
+function drawStepGate(cx, lineY, size, g, built, isNext) {
+  const def = GDEF[g.id];
+  const lit = built || isNext;
+  const col = lit ? def.color : FAINT;
+
+  if(g.id === 'CCZ') {
+    const ys = g.q.map(qi=>lineY[qi]);
+    const top = Math.min(...ys), bot = Math.max(...ys);
+    circCtx.save();
+    circCtx.globalAlpha = built ? 1 : (isNext ? 0.9 : 0.5);
+    if(isNext){ circCtx.shadowBlur = 9; circCtx.shadowColor = def.color; }
+    // vertical connector
+    circCtx.strokeStyle = col; circCtx.lineWidth = 1.4;
+    circCtx.beginPath(); circCtx.moveTo(cx, top); circCtx.lineTo(cx, bot); circCtx.stroke();
+    // two control dots, then a Z target box on the last qubit
+    g.q.forEach((qi, idx) => {
+      const y = lineY[qi];
+      if(idx < g.q.length - 1) {
+        circCtx.fillStyle = col;
+        circCtx.beginPath(); circCtx.arc(cx, y, 3, 0, Math.PI*2); circCtx.fill();
+      } else {
+        const s = size*0.9;
+        circCtx.fillStyle = lit ? def.color + '22' : 'rgba(201,203,192,0.06)';
+        circCtx.strokeStyle = col; circCtx.lineWidth = 1.4;
+        circCtx.fillRect(cx-s/2, y-s/2, s, s);
+        circCtx.strokeRect(cx-s/2, y-s/2, s, s);
+        circCtx.shadowBlur = 0;
+        circCtx.fillStyle = col;
+        circCtx.font = '900 9px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
+        circCtx.fillText('Z', cx, y+1);
+      }
+    });
+    circCtx.restore();
+  } else {
+    const y = lineY[g.q[0]];
+    circCtx.save();
+    circCtx.globalAlpha = built ? 1 : (isNext ? 0.9 : 0.5);
+    if(isNext){ circCtx.shadowBlur = 10; circCtx.shadowColor = def.color; }
+    circCtx.fillStyle = lit ? def.color + '22' : 'rgba(201,203,192,0.06)';
+    circCtx.strokeStyle = col; circCtx.lineWidth = 1.4;
+    circCtx.fillRect(cx-size/2, y-size/2, size, size);
+    circCtx.strokeRect(cx-size/2, y-size/2, size, size);
+    circCtx.shadowBlur = 0;
+    circCtx.fillStyle = col;
+    circCtx.font = '900 10px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
+    circCtx.fillText(def.label, cx, y+1);
+    circCtx.restore();
   }
 }
 
@@ -698,6 +834,7 @@ document.addEventListener('touchend', e=>{
 function startGame(){
   document.getElementById('start-screen').classList.add('hidden');
   document.getElementById('gameover-screen').classList.add('hidden');
+  document.getElementById('win-screen').classList.add('hidden');
   setupGrid();
   initGame();
   state='playing';
@@ -707,12 +844,15 @@ function showReveal(){
   document.getElementById('rev-score').textContent=score.toLocaleString();
   document.getElementById('rev-gates').textContent=gatesEaten;
   document.getElementById('gameover-screen').classList.add('hidden');
+  document.getElementById('win-screen').classList.add('hidden');
   document.getElementById('reveal').classList.remove('hidden');
 }
 
 document.getElementById('start-btn').addEventListener('click',startGame);
 document.getElementById('restart-btn').addEventListener('click',startGame);
 document.getElementById('show-reveal').addEventListener('click',showReveal);
+document.getElementById('win-again').addEventListener('click',startGame);
+document.getElementById('win-reveal').addEventListener('click',showReveal);
 document.getElementById('play-again').addEventListener('click',()=>{document.getElementById('reveal').classList.add('hidden');startGame();});
 document.getElementById('back-start').addEventListener('click',()=>{document.getElementById('reveal').classList.add('hidden');document.getElementById('start-screen').classList.remove('hidden');});
 
