@@ -366,9 +366,12 @@ const ctx     = canvas.getContext('2d');
 const circCan = document.getElementById('circuitCanvas');
 const circCtx = circCan.getContext('2d');
 
+// Cap the play field so it stays compact and centered on large screens.
+const MAX_W = 520, MAX_H = 420;
 function setupGrid() {
   const wrap = document.getElementById('game-wrap');
-  const W = wrap.clientWidth, H = wrap.clientHeight;
+  const W = Math.min(wrap.clientWidth,  MAX_W);
+  const H = Math.min(wrap.clientHeight, MAX_H);
   COLS = Math.floor(W / CELL);
   ROWS = Math.floor(H / CELL);
   // Force odd for centering
@@ -627,17 +630,22 @@ function drawCircuit() {
     circCtx.fillText(`q${qi}`, startX-11, y);
   });
 
-  // Iterate placements in the same order as STEPS so step indices line up
+  // Only draw gates the player has already collected — they appear once eaten.
   let stepCounter = 0;
   GROVER_COLUMNS.forEach((col, ci) => {
     const cx = startX + ci*colW + colW/2;
     col.gates.forEach(g => {
       const myStep = stepCounter++;
-      const built  = myStep < buildIndex;
-      const isNext = myStep === buildIndex;
-      drawStepGate(cx, lineY, gateSize, g, built, isNext);
+      if(myStep < buildIndex) drawStepGate(cx, lineY, gateSize, g, true, false);
     });
   });
+
+  // Hint while the circuit is still empty
+  if(buildIndex === 0) {
+    circCtx.fillStyle = 'rgba(201,203,192,0.25)';
+    circCtx.font = '700 9px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
+    circCtx.fillText('COLLECT GATES TO BUILD GROVER-3', w/2, h*0.93);
+  }
 }
 
 function drawStepGate(cx, lineY, size, g, built, isNext) {
