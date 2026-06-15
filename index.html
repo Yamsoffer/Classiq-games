@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classiq Games — 7.7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --black:#191919; --panel:#282828; --pink:#F43764;
+    --lime:#d7f75b; --teal:#119DA4; --grey:#C9CBC0;
+    --offwhite:#F4F9E9; --dim:rgba(201,203,192,0.38); --border:rgba(201,203,192,0.1);
+  }
+  html,body { width:100%; min-height:100%; background:var(--black); font-family:'Lato',sans-serif; color:var(--grey); overflow-x:hidden; }
+
+  /* Stars */
+  #stars { position:fixed; inset:0; pointer-events:none; z-index:0; }
+
+  /* Page */
+  #page {
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:60px 24px;
+    gap:0;
+  }
+
+  /* Logo */
+  .logo-row {
+    display:flex; align-items:center; gap:12px; margin-bottom:48px;
+  }
+  .logo-row svg { width:36px; height:36px; }
+  .logo-name { font-size:15px; font-weight:900; letter-spacing:.18em; color:var(--offwhite); }
+  .logo-name span { color:var(--pink); }
+
+  /* Headline */
+  .headline {
+    font-size:clamp(13px,1.8vw,18px); font-weight:700; letter-spacing:.25em;
+    color:var(--dim); text-align:center; margin-bottom:16px;
+  }
+  .date-lockup {
+    font-size:clamp(72px,14vw,160px); font-weight:900; line-height:1;
+    color:var(--lime);
+    text-shadow:0 0 80px rgba(215,247,91,.3), 0 0 160px rgba(215,247,91,.12);
+    margin-bottom:12px;
+  }
+  .date-sub {
+    font-size:11px; font-weight:700; letter-spacing:.32em;
+    color:var(--dim); margin-bottom:56px; text-align:center;
+  }
+
+  /* Games grid */
+  .games {
+    display:grid; grid-template-columns:1fr 1fr; gap:16px;
+    width:100%; max-width:680px; margin-bottom:48px;
+  }
+  @media(max-width:520px){ .games { grid-template-columns:1fr; } }
+
+  .game-card {
+    background:var(--panel); border:1px solid var(--border); border-radius:2px;
+    padding:28px 24px;
+    display:flex; flex-direction:column; gap:12px;
+    text-decoration:none; color:inherit;
+    transition:all .18s; position:relative; overflow:hidden;
+  }
+  .game-card::before {
+    content:''; position:absolute; inset:0;
+    opacity:0; transition:opacity .18s;
+  }
+  .game-card.card-strike::before { background:radial-gradient(ellipse 80% 60% at 50% 100%, rgba(244,55,100,.08) 0%,transparent 70%); }
+  .game-card.card-circuit::before { background:radial-gradient(ellipse 80% 60% at 50% 100%, rgba(215,247,91,.07) 0%,transparent 70%); }
+  .game-card:hover { border-color:rgba(201,203,192,.22); transform:translateY(-2px); }
+  .game-card:hover::before { opacity:1; }
+
+  .card-eyebrow { font-size:9px; font-weight:700; letter-spacing:.28em; color:var(--dim); }
+  .card-title { font-size:26px; font-weight:900; letter-spacing:.06em; color:var(--offwhite); line-height:1; }
+  .card-title .pk { color:var(--pink); }
+  .card-title .lm { color:var(--lime); }
+  .card-desc { font-size:12px; line-height:1.65; color:var(--dim); flex:1; }
+  .card-tags { display:flex; gap:6px; flex-wrap:wrap; }
+  .tag {
+    font-size:9px; font-weight:700; letter-spacing:.14em;
+    padding:4px 9px; border-radius:2px; border:1px solid;
+  }
+  .tag-pink { color:var(--pink); border-color:rgba(244,55,100,.35); }
+  .tag-lime { color:var(--lime); border-color:rgba(215,247,91,.35); }
+  .tag-teal { color:var(--teal); border-color:rgba(17,157,164,.35); }
+
+  .card-cta {
+    display:flex; align-items:center; gap:8px;
+    font-size:10px; font-weight:900; letter-spacing:.18em;
+    margin-top:4px;
+  }
+  .card-cta.cta-strike { color:var(--pink); }
+  .card-cta.cta-circuit { color:var(--lime); }
+  .card-arrow { font-size:14px; transition:transform .15s; }
+  .game-card:hover .card-arrow { transform:translateX(4px); }
+
+  /* Footer line */
+  .footer-line {
+    font-size:11px; font-weight:400; color:var(--dim);
+    text-align:center; letter-spacing:.06em;
+  }
+  .footer-line strong { color:var(--offwhite); font-weight:700; }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div id="page">
+
+  <!-- Logo -->
+  <div class="logo-row">
+    <svg viewBox="0 0 36 36" fill="none">
+      <polygon points="18,3 33,30 3,30" fill="none" stroke="#F43764" stroke-width="2" opacity=".9"/>
+      <polygon points="18,11 27,28 9,28" fill="#F43764" opacity=".18"/>
+      <circle cx="18" cy="23" r="2.8" fill="#d7f75b"/>
+    </svg>
+    <div class="logo-name">CLASSIQ<span> GAMES</span></div>
+  </div>
+
+  <!-- Date -->
+  <div class="headline">SAVE THE DATE</div>
+  <div class="date-lockup">7.7</div>
+  <div class="date-sub">SOMETHING BIG IS COMING · START PLAYING · START THINKING</div>
+
+  <!-- Game cards -->
+  <div class="games">
+
+    <a href="q-strike.html" class="game-card card-strike">
+      <div class="card-eyebrow">GAME 01</div>
+      <div class="card-title">Q-<span class="pk">STRIKE</span></div>
+      <div class="card-desc">Defend the quantum realm. Shoot down qubits, superpositions, and entangled pairs before they breach.</div>
+      <div class="card-tags">
+        <span class="tag tag-pink">SHOOTER</span>
+        <span class="tag tag-pink">QUANTUM ENEMIES</span>
+      </div>
+      <div class="card-cta cta-strike">PLAY NOW <span class="card-arrow">→</span></div>
+    </a>
+
+    <a href="q-circuit.html" class="game-card card-circuit">
+      <div class="card-eyebrow">GAME 02</div>
+      <div class="card-title">Q-<span class="lm">CIRCUIT</span></div>
+      <div class="card-desc">Eat quantum gates. Build a real circuit. Avoid error gates or your quantum state collapses.</div>
+      <div class="card-tags">
+        <span class="tag tag-lime">SNAKE</span>
+        <span class="tag tag-teal">CIRCUIT BUILDER</span>
+      </div>
+      <div class="card-cta cta-circuit">PLAY NOW <span class="card-arrow">→</span></div>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-line">
+    Built with Classiq AI · <strong>Innovation Hackathon — July 7th</strong>
+  </div>
+
+</div>
+
+<script>
+const sc = document.getElementById('stars');
+const sCtx = sc.getContext('2d');
+let stars = [];
+function init() {
+  sc.width = window.innerWidth; sc.height = window.innerHeight; stars = [];
+  const cols = ['rgba(244,249,233,','rgba(215,247,91,','rgba(17,157,164,'];
+  for(let i=0;i<180;i++) stars.push({
+    x:Math.random()*sc.width, y:Math.random()*sc.height,
+    r:Math.random()*1.1+.2, a:Math.random()*.5+.08,
+    speed:Math.random()*.25+.04,
+    col:cols[Math.floor(Math.random()*cols.length)]
+  });
+}
+function draw() {
+  requestAnimationFrame(draw);
+  sCtx.clearRect(0,0,sc.width,sc.height);
+  stars.forEach(s=>{
+    s.y+=s.speed; if(s.y>sc.height){s.y=0;s.x=Math.random()*sc.width;}
+    sCtx.beginPath();sCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sCtx.fillStyle=s.col+s.a+')';sCtx.fill();
+  });
+}
+window.addEventListener('resize',init);
+init(); draw();
+</script>
+</body>
+</html>
