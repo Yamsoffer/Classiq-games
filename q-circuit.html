@@ -650,43 +650,50 @@ function drawGateBox(ctx2, x, y, size, gate, alpha=1, glow=false) {
   ctx2.restore();
 }
 
-// ── DRAW CIRCUIT (Grover-3 blueprint that fills as you build) ───────────────
+// ── DRAW CIRCUIT (scrolling timeline that fills as you collect gates) ───────
 const FAINT = 'rgba(201,203,192,0.22)';
 function drawCircuit() {
   const w = circCan.width, h = circCan.height;
   circCtx.clearRect(0,0,w,h);
 
-  const lineY = [h*0.30, h*0.52, h*0.74];
-  const startX = 28;
-  const nCols = GROVER_COLUMNS.length;
-  const colW = (w - startX - 10) / nCols;
-  const gateSize = Math.min(15, colW - 3);
+  const lineY = [h*0.26, h*0.50, h*0.74];
+  const startX = 30;
+  const colW = 30, gateSize = 19;
+  const maxVisible = Math.max(1, Math.floor((w - startX - 8) / colW));
 
   // Qubit lines + labels
   lineY.forEach((y, qi) => {
     circCtx.strokeStyle = 'rgba(201,203,192,0.16)';
     circCtx.lineWidth = 1.2;
-    circCtx.beginPath(); circCtx.moveTo(startX-8,y); circCtx.lineTo(w-6,y); circCtx.stroke();
+    circCtx.beginPath(); circCtx.moveTo(startX-9,y); circCtx.lineTo(w-6,y); circCtx.stroke();
     circCtx.fillStyle = 'rgba(201,203,192,0.4)';
-    circCtx.font = '700 8px Lato'; circCtx.textAlign='right'; circCtx.textBaseline='middle';
-    circCtx.fillText(`q${qi}`, startX-11, y);
+    circCtx.font = '700 9px Lato'; circCtx.textAlign='right'; circCtx.textBaseline='middle';
+    circCtx.fillText(`q${qi}`, startX-12, y);
   });
 
-  // Only draw gates the player has already collected — they appear once eaten.
-  let stepCounter = 0;
-  GROVER_COLUMNS.forEach((col, ci) => {
-    const cx = startX + ci*colW + colW/2;
-    col.gates.forEach(g => {
-      const myStep = stepCounter++;
-      if(myStep < buildIndex) drawStepGate(cx, lineY, gateSize, g, true, false);
+  // Group already-collected placements into their circuit columns
+  let sc = 0;
+  const builtCols = [];
+  GROVER_COLUMNS.forEach(col => {
+    const built = [];
+    col.gates.forEach(g => { if(sc < buildIndex) built.push({ g, step:sc }); sc++; });
+    if(built.length) builtCols.push(built);
+  });
+
+  // Auto-scroll: show the most recent columns at a comfortable, readable size
+  const visible = builtCols.slice(-maxVisible);
+  visible.forEach((colGates, i) => {
+    const cx = startX + i*colW + colW/2;
+    colGates.forEach(({g, step}) => {
+      drawStepGate(cx, lineY, gateSize, g, true, step === buildIndex - 1);
     });
   });
 
   // Hint while the circuit is still empty
   if(buildIndex === 0) {
-    circCtx.fillStyle = 'rgba(201,203,192,0.25)';
+    circCtx.fillStyle = 'rgba(201,203,192,0.3)';
     circCtx.font = '700 9px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
-    circCtx.fillText('COLLECT GATES TO BUILD GROVER-3', w/2, h*0.93);
+    circCtx.fillText('COLLECT GATES TO BUILD GROVER-3', w/2, h/2);
   }
 }
 
@@ -709,16 +716,16 @@ function drawStepGate(cx, lineY, size, g, built, isNext) {
       const y = lineY[qi];
       if(idx < g.q.length - 1) {
         circCtx.fillStyle = col;
-        circCtx.beginPath(); circCtx.arc(cx, y, 3, 0, Math.PI*2); circCtx.fill();
+        circCtx.beginPath(); circCtx.arc(cx, y, 3.5, 0, Math.PI*2); circCtx.fill();
       } else {
-        const s = size*0.9;
-        circCtx.fillStyle = lit ? def.color + '22' : 'rgba(201,203,192,0.06)';
-        circCtx.strokeStyle = col; circCtx.lineWidth = 1.4;
+        const s = size*0.92;
+        circCtx.fillStyle = lit ? def.color + '33' : 'rgba(201,203,192,0.06)';
+        circCtx.strokeStyle = col; circCtx.lineWidth = 1.6;
         circCtx.fillRect(cx-s/2, y-s/2, s, s);
         circCtx.strokeRect(cx-s/2, y-s/2, s, s);
         circCtx.shadowBlur = 0;
         circCtx.fillStyle = col;
-        circCtx.font = '900 9px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
+        circCtx.font = '900 11px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
         circCtx.fillText('Z', cx, y+1);
       }
     });
@@ -727,14 +734,14 @@ function drawStepGate(cx, lineY, size, g, built, isNext) {
     const y = lineY[g.q[0]];
     circCtx.save();
     circCtx.globalAlpha = built ? 1 : (isNext ? 0.9 : 0.5);
-    if(isNext){ circCtx.shadowBlur = 10; circCtx.shadowColor = def.color; }
-    circCtx.fillStyle = lit ? def.color + '22' : 'rgba(201,203,192,0.06)';
-    circCtx.strokeStyle = col; circCtx.lineWidth = 1.4;
+    if(isNext){ circCtx.shadowBlur = 12; circCtx.shadowColor = def.color; }
+    circCtx.fillStyle = lit ? def.color + '33' : 'rgba(201,203,192,0.06)';
+    circCtx.strokeStyle = col; circCtx.lineWidth = 1.6;
     circCtx.fillRect(cx-size/2, y-size/2, size, size);
     circCtx.strokeRect(cx-size/2, y-size/2, size, size);
     circCtx.shadowBlur = 0;
     circCtx.fillStyle = col;
-    circCtx.font = '900 10px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
+    circCtx.font = '900 12px Lato'; circCtx.textAlign='center'; circCtx.textBaseline='middle';
     circCtx.fillText(def.label, cx, y+1);
     circCtx.restore();
   }
