@@ -65,11 +65,16 @@
   #game-wrap {
     grid-area:game;
     position:relative;
-    background:var(--dark);
+    background:var(--black);
     display:flex; align-items:center; justify-content:center;
     overflow:hidden;
   }
-  #gameCanvas { display:block; image-rendering:pixelated; }
+  #gameCanvas {
+    display:block; image-rendering:pixelated;
+    border:1px solid rgba(215,247,91,.35);
+    border-radius:6px;
+    box-shadow:0 0 0 1px rgba(0,0,0,.4), 0 8px 40px rgba(0,0,0,.45);
+  }
 
   /* ── CIRCUIT PANEL ── */
   #circuit-panel {
