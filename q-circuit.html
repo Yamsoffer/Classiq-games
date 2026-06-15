@@ -38,6 +38,15 @@
     z-index:10;
   }
   #hud-left { display:flex; align-items:center; gap:22px; }
+  .back-home {
+    display:inline-flex; align-items:center; gap:6px;
+    text-decoration:none; color:var(--grey);
+    font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    padding:7px 12px; border:1px solid var(--border); border-radius:6px;
+    background:rgba(40,40,40,.6); transition:all .15s ease;
+  }
+  .back-home:hover { color:var(--offwhite); border-color:var(--lime); background:rgba(215,247,91,.08); }
+  .back-home span { font-size:13px; line-height:1; }
   #logo-svg { width:28px; height:28px; flex-shrink:0; }
   #logo-text { font-size:13px; font-weight:900; letter-spacing:.16em; color:var(--offwhite); }
   #logo-text span { color:var(--lime); }
@@ -178,6 +187,7 @@
   <!-- HUD -->
   <div id="hud">
     <div id="hud-left">
+      <a href="index.html" class="back-home" title="Back to homepage"><span>←</span>Home</a>
       <svg id="logo-svg" viewBox="0 0 28 28" fill="none">
         <polygon points="14,2 26,24 2,24" fill="none" stroke="#d7f75b" stroke-width="2" opacity=".9"/>
         <polygon points="14,9 22,22 6,22" fill="#d7f75b" opacity=".18"/>
