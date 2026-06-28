@@ -41,18 +41,87 @@
   .stage {
     position:relative; width:min(300px,72vw);
     display:flex; align-items:flex-end; justify-content:center; margin-bottom:6px;
-    animation:float 6s ease-in-out infinite;
+    transform:translate(0,0) rotate(0deg);
+    transition:transform .4s cubic-bezier(.22,1,.36,1);
+    will-change:transform; cursor:pointer;
   }
-  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
-  .stage img {
-    width:100%; height:auto; display:block;
+  /* lively idle: bob + sway + breathe, pivoting from the feet */
+  .albert {
+    position:relative; width:100%; transform-origin:50% 100%;
+    animation:idle 7s ease-in-out infinite;
+  }
+  .albert img {
+    display:block; height:auto;
     filter:drop-shadow(0 22px 34px rgba(0,0,0,.55)) drop-shadow(0 0 34px rgba(17,157,164,.22));
+  }
+  .albert .idle { width:100%; transition:opacity .22s ease; }
+  /* waving pose, aligned to the idle pose by the feet */
+  .albert .wave-layer {
+    position:absolute; bottom:0; left:-9.2%; width:110.5%;
+    opacity:0; transition:opacity .22s ease;
+    transform-origin:41% 100%; pointer-events:none;
+  }
+  .albert.greeting .idle { opacity:0; }
+  .albert.greeting .wave-layer { opacity:1; animation:waveRock 1.5s ease-in-out; }
+  @keyframes waveRock {
+    0%,100% { transform:rotate(0deg); }
+    15% { transform:rotate(-3deg); }
+    30% { transform:rotate(2.6deg); }
+    45% { transform:rotate(-3deg); }
+    60% { transform:rotate(2.4deg); }
+    78% { transform:rotate(-1.6deg); }
+  }
+  .stage.hop .albert { animation:hop .72s cubic-bezier(.3,1.35,.5,1); }
+
+  /* wink: a glint sweeps the glasses + a sparkle pops at the lens */
+  .glint {
+    position:absolute; left:31.5%; top:11.5%; width:12%; height:6.2%;
+    border-radius:34%/46%; overflow:hidden; opacity:0; pointer-events:none;
+  }
+  .glint::before {
+    content:''; position:absolute; inset:-60% -10%;
+    background:linear-gradient(115deg, transparent 38%, rgba(255,255,255,.92) 50%, transparent 62%);
+    transform:translateX(-130%);
+  }
+  .sparkle {
+    position:absolute; left:27%; top:7.5%; opacity:0; pointer-events:none;
+    color:var(--lime); font-size:clamp(16px,6vw,30px); line-height:1;
+    filter:drop-shadow(0 0 7px rgba(215,247,91,.85));
+  }
+  .albert.winking .glint { opacity:1; }
+  .albert.winking .glint::before { animation:glintSweep .55s ease-out; }
+  .albert.winking .sparkle { animation:sparklePop .72s ease-out; }
+  @keyframes glintSweep { from{transform:translateX(-130%);} to{transform:translateX(130%);} }
+  @keyframes sparklePop {
+    0%   { opacity:0; transform:scale(.2) rotate(-25deg); }
+    45%  { opacity:1; transform:scale(1.25) rotate(8deg); }
+    100% { opacity:0; transform:scale(.45) rotate(25deg); }
+  }
+  @keyframes idle {
+    0%   { transform:translateY(0)     rotate(0deg)    scaleY(1); }
+    25%  { transform:translateY(-9px)  rotate(-1.3deg) scale(1.006,.99); }
+    50%  { transform:translateY(-13px) rotate(0deg)    scale(.992,1.012); }
+    75%  { transform:translateY(-9px)  rotate(1.3deg)  scale(1.006,.99); }
+    100% { transform:translateY(0)     rotate(0deg)    scaleY(1); }
+  }
+  @keyframes hop {
+    0%   { transform:translateY(0)     scaleY(1); }
+    18%  { transform:translateY(3px)   scale(1.06,.9); }
+    48%  { transform:translateY(-48px) scale(.95,1.09); }
+    70%  { transform:translateY(0)     scale(1.07,.9); }
+    85%  { transform:translateY(0)     scale(.98,1.03); }
+    100% { transform:translateY(0)     scaleY(1); }
   }
   .stage::after {
     content:''; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%);
     width:60%; height:20px; border-radius:50%;
     background:radial-gradient(ellipse,rgba(17,157,164,.42),transparent 70%);
     filter:blur(8px); z-index:-1;
+    animation:groundPulse 7s ease-in-out infinite;
+  }
+  @keyframes groundPulse {
+    0%,100% { transform:translateX(-50%) scale(1);   opacity:.42; }
+    50%     { transform:translateX(-50%) scale(.78); opacity:.26; }
   }
 
   /* Name lockup */
@@ -77,17 +146,10 @@
   }
   .footer-line strong { color:var(--offwhite); font-weight:700; }
 
-  /* animation */
-  .orbit { transform-origin:180px 330px; animation:spin 18s linear infinite; }
-  .orbit.rev { animation-duration:24s; animation-direction:reverse; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .twinkle { animation:tw 2.4s ease-in-out infinite; }
-  .twinkle.d { animation-delay:1.2s; }
-  @keyframes tw { 0%,100%{opacity:.4;} 50%{opacity:1;} }
-  .holo { transform-origin:150px 312px; animation:spin 9s linear infinite; }
-  .pulse { animation:pulse 2.6s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:.55;} 50%{opacity:1;} }
-  @media (prefers-reduced-motion: reduce){ .stage,.orbit,.twinkle,.holo,.pulse{animation:none;} }
+  /* respect reduced-motion */
+  @media (prefers-reduced-motion: reduce){
+    .stage, .albert, .albert img, .stage::after, .glint, .sparkle, .albert .wave-layer { animation:none !important; transform:none; }
+  }
 </style>
 </head>
 <body>
@@ -110,7 +172,12 @@
 
   <!-- ===================== ALBERT (cyborg) ===================== -->
   <div class="stage">
-    <img src="albert-cutout.png" alt="Albert — Classiq's first Quantum Engineer Agent" />
+    <div class="albert">
+      <img class="idle" src="albert-cutout.png" alt="Albert — Classiq's first Quantum Engineer Agent" />
+      <img class="wave-layer" src="albert-wave.png" alt="" aria-hidden="true" />
+      <span class="glint"></span>
+      <span class="sparkle">✦</span>
+    </div>
   </div>
   <!-- =================== /ALBERT ====================== -->
 
@@ -153,6 +220,46 @@ function draw() {
 }
 window.addEventListener('resize',init);
 init(); draw();
+
+/* ===== Albert: idle interactions — lean, hop, wink ===== */
+(function () {
+  const stage = document.querySelector('.stage');
+  const albert = document.querySelector('.albert');
+  if (!stage || !albert) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduce) {
+    let raf = null, tx = 0, ty = 0, rot = 0;
+    function apply() { raf = null; stage.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg)`; }
+    window.addEventListener('mousemove', e => {
+      const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+      const nx = (e.clientX - cx) / cx, ny = (e.clientY - cy) / cy;
+      tx = nx * 10; ty = ny * 6; rot = nx * 2.2;
+      if (!raf) raf = requestAnimationFrame(apply);
+    });
+    document.addEventListener('mouseleave', () => { stage.style.transform = ''; });
+  }
+
+  let busy = false;
+  function wink() {
+    if (busy) return; busy = true;
+    albert.classList.add('winking');
+    setTimeout(() => { albert.classList.remove('winking'); busy = false; }, 760);
+  }
+  function wave() {
+    if (busy) return; busy = true;
+    albert.classList.add('greeting');
+    setTimeout(() => { albert.classList.remove('greeting'); busy = false; }, 1700);
+  }
+
+  stage.addEventListener('click', wave);          // tap → wave hello
+  stage.addEventListener('mouseenter', wink);     // hover → wink
+  if (!reduce) {
+    setTimeout(wave, 800);                         // greet on arrival
+    setInterval(wink, 7000);
+    setInterval(wave, 13000);
+  }
+})();
 </script>
 </body>
 </html>
