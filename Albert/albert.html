@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Meet Albert — Classiq's first Quantum Engineer Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --black:#191919; --panel:#282828; --pink:#F43764;
+    --lime:#d7f75b; --teal:#119DA4; --grey:#C9CBC0;
+    --offwhite:#F4F9E9; --dim:rgba(201,203,192,0.38); --border:rgba(201,203,192,0.1);
+  }
+  html,body { width:100%; min-height:100%; background:var(--black); font-family:'Lato',sans-serif; color:var(--grey); overflow-x:hidden; }
+
+  #stars { position:fixed; inset:0; pointer-events:none; z-index:0; }
+
+  #page {
+    position:relative; z-index:1; min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:48px 24px; gap:0;
+  }
+
+  /* Logo */
+  .logo-row { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
+  .logo-row svg { width:34px; height:34px; }
+  .logo-name { font-size:15px; font-weight:900; letter-spacing:.18em; color:var(--offwhite); }
+  .logo-name span { color:var(--pink); }
+
+  /* Eyebrow headline */
+  .eyebrow {
+    font-size:clamp(11px,1.4vw,14px); font-weight:700; letter-spacing:.32em;
+    color:var(--dim); text-align:center; margin-bottom:20px;
+  }
+  .eyebrow b { color:var(--teal); }
+
+  /* Character stage */
+  .stage {
+    position:relative; width:min(300px,72vw);
+    display:flex; align-items:flex-end; justify-content:center; margin-bottom:6px;
+    animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+  .stage img {
+    width:100%; height:auto; display:block;
+    filter:drop-shadow(0 22px 34px rgba(0,0,0,.55)) drop-shadow(0 0 34px rgba(17,157,164,.22));
+  }
+  .stage::after {
+    content:''; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%);
+    width:60%; height:20px; border-radius:50%;
+    background:radial-gradient(ellipse,rgba(17,157,164,.42),transparent 70%);
+    filter:blur(8px); z-index:-1;
+  }
+
+  /* Name lockup */
+  .name {
+    font-size:clamp(64px,13vw,140px); font-weight:900; line-height:.9;
+    color:var(--offwhite); letter-spacing:.02em; text-align:center; margin-top:4px;
+    text-shadow:0 0 70px rgba(17,157,164,.35), 0 0 140px rgba(215,247,91,.12);
+  }
+  .name span { color:var(--teal); }
+  .role {
+    font-size:clamp(11px,1.6vw,15px); font-weight:700; letter-spacing:.30em;
+    color:var(--lime); text-align:center; margin-top:14px;
+  }
+  .blurb {
+    max-width:480px; font-size:13px; line-height:1.7; color:var(--dim);
+    text-align:center; margin-top:22px;
+  }
+
+  .footer-line {
+    font-size:11px; font-weight:400; color:var(--dim);
+    text-align:center; letter-spacing:.06em; margin-top:40px;
+  }
+  .footer-line strong { color:var(--offwhite); font-weight:700; }
+
+  /* animation */
+  .orbit { transform-origin:180px 330px; animation:spin 18s linear infinite; }
+  .orbit.rev { animation-duration:24s; animation-direction:reverse; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .twinkle { animation:tw 2.4s ease-in-out infinite; }
+  .twinkle.d { animation-delay:1.2s; }
+  @keyframes tw { 0%,100%{opacity:.4;} 50%{opacity:1;} }
+  .holo { transform-origin:150px 312px; animation:spin 9s linear infinite; }
+  .pulse { animation:pulse 2.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.55;} 50%{opacity:1;} }
+  @media (prefers-reduced-motion: reduce){ .stage,.orbit,.twinkle,.holo,.pulse{animation:none;} }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div id="page">
+
+  <!-- Logo -->
+  <div class="logo-row">
+    <svg viewBox="0 0 36 36" fill="none">
+      <polygon points="18,3 33,30 3,30" fill="none" stroke="#F43764" stroke-width="2" opacity=".9"/>
+      <polygon points="18,11 27,28 9,28" fill="#F43764" opacity=".18"/>
+      <circle cx="18" cy="23" r="2.8" fill="#d7f75b"/>
+    </svg>
+    <div class="logo-name">CLASSIQ<span> · AGENTS</span></div>
+  </div>
+
+  <div class="eyebrow">CLASSIQ MEETS THE FIRST <b>QUANTUM ENGINEER</b> AGENT</div>
+
+  <!-- ===================== ALBERT (cyborg) ===================== -->
+  <div class="stage">
+    <img src="albert-cutout.png" alt="Albert — Classiq's first Quantum Engineer Agent" />
+  </div>
+  <!-- =================== /ALBERT ====================== -->
+
+  <div class="name">ALBERT<span>.</span></div>
+  <div class="role">YOUR QUANTUM ENGINEER · ON DEMAND</div>
+  <div class="blurb">
+    The first agent on the Classiq platform. Albert designs, builds and debugs
+    quantum algorithms with you — from idea to running circuit.
+    Smart, approachable, and always ready to help.
+  </div>
+
+  <div class="footer-line">
+    Built with Classiq AI · <strong>Coming soon</strong>
+  </div>
+
+</div>
+
+<script>
+const sc = document.getElementById('stars');
+const sCtx = sc.getContext('2d');
+let stars = [];
+function init() {
+  sc.width = window.innerWidth; sc.height = window.innerHeight; stars = [];
+  const cols = ['rgba(244,249,233,','rgba(215,247,91,','rgba(17,157,164,'];
+  for(let i=0;i<180;i++) stars.push({
+    x:Math.random()*sc.width, y:Math.random()*sc.height,
+    r:Math.random()*1.1+.2, a:Math.random()*.5+.08,
+    speed:Math.random()*.25+.04,
+    col:cols[Math.floor(Math.random()*cols.length)]
+  });
+}
+function draw() {
+  requestAnimationFrame(draw);
+  sCtx.clearRect(0,0,sc.width,sc.height);
+  stars.forEach(s=>{
+    s.y+=s.speed; if(s.y>sc.height){s.y=0;s.x=Math.random()*sc.width;}
+    sCtx.beginPath();sCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sCtx.fillStyle=s.col+s.a+')';sCtx.fill();
+  });
+}
+window.addEventListener('resize',init);
+init(); draw();
+</script>
+</body>
+</html>
