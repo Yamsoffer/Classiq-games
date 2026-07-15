@@ -58,8 +58,9 @@
   }
   .albert .wave-arm2 {
     position:absolute; top:0; left:0; width:100%; pointer-events:none;
-    transform-origin:54.86% 44.22%;   /* the shoulder */
+    transform-origin:56% 43%;   /* the shoulder — shifted into sphere */
     animation:wavehand 1.5s ease-in-out infinite;
+    filter:drop-shadow(-2px -1px 1px rgba(215,247,91,.2));
   }
   @keyframes wavehand {
     0%,100% { transform:rotate(-3deg); }
