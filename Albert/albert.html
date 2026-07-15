@@ -45,20 +45,29 @@
     transition:transform .4s cubic-bezier(.22,1,.36,1);
     will-change:transform; cursor:pointer;
   }
-  /* gentle wave-sway of the whole figure — nothing is cut, so no seams/gaps/ghosts.
-     Albert's hand is already up in a wave pose; the sway gives it life. */
+  /* body is static; only the separate waving-arm layer rotates at the shoulder,
+     over an armless body — so no double, no wrist cut, no gap */
   .albert {
     position:relative; width:100%; transform-origin:50% 100%;
-    animation:wavesway 2.6s ease-in-out infinite;
+    animation:breathe 5s ease-in-out infinite;
   }
   .albert img { display:block; height:auto; }
   .albert .idle {
     width:100%;
     filter:drop-shadow(0 22px 34px rgba(0,0,0,.55)) drop-shadow(0 0 34px rgba(17,157,164,.22));
   }
-  @keyframes wavesway {
-    0%,100% { transform:rotate(0deg)    scale(1,1); }
-    50%     { transform:rotate(-2.4deg) scale(1.006,.995); }
+  .albert .wave-arm2 {
+    position:absolute; top:0; left:0; width:100%; pointer-events:none;
+    transform-origin:54.86% 44.22%;   /* the shoulder */
+    animation:wavehand 1.5s ease-in-out infinite;
+  }
+  @keyframes wavehand {
+    0%,100% { transform:rotate(-3deg); }
+    50%     { transform:rotate(10deg); }
+  }
+  @keyframes breathe {
+    0%,100% { transform:scale(1,1); }
+    50%     { transform:scale(1.008,.992); }
   }
   .stage::after {
     content:''; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%);
@@ -117,6 +126,7 @@
   <div class="stage">
     <div class="albert">
       <img class="idle" src="albert-wa-base.png" alt="Albert — Classiq's first Quantum Engineer Agent" />
+      <img class="wave-arm2" src="albert-wa-arm.png" alt="" aria-hidden="true" />
     </div>
   </div>
   <!-- =================== /ALBERT ====================== -->
