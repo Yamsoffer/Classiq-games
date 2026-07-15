@@ -55,14 +55,15 @@
     width:100%;
     filter:drop-shadow(0 22px 34px rgba(0,0,0,.55)) drop-shadow(0 0 34px rgba(17,157,164,.22));
   }
-  /* wave: only the hand rotates at the wrist — arm/hair/body stay static (no ghost, no gap) */
+  /* wave: the whole arm+hand (one piece) rotates at the shoulder, over the full body
+     behind it — so there's no wrist cut and no gap at the joint */
   .albert .wave-arm2 {
     position:absolute; top:0; left:0; width:100%; pointer-events:none;
-    transform-origin:25.8% 37.5%;   /* pivot at the wrist; edge feathered into the forearm */
-    animation:waveArm2 1.2s ease-in-out infinite;
+    transform-origin:40.05% 37.78%;   /* pivot where the arm meets the body */
+    animation:waveArm2 1.15s ease-in-out infinite;
   }
-  /* wave only outward (0 → +12) so the wrist stays connected */
-  @keyframes waveArm2 { 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(12deg); } }
+  /* rotate only upward (0 → -7) so the arm stays seamlessly on the body */
+  @keyframes waveArm2 { 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-7deg); } }
   @keyframes breathe {
     0%,100% { transform:scale(1,1); }
     50%     { transform:scale(1.012,.988); }
