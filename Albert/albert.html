@@ -45,22 +45,15 @@
     transition:transform .4s cubic-bezier(.22,1,.36,1);
     will-change:transform; cursor:pointer;
   }
-  /* lively: real jump with anticipation + squash/stretch, pivoting from the feet */
+  /* calm idle: gentle breathe from the feet — no jumping */
   .albert {
     position:relative; width:100%; transform-origin:50% 100%;
-    animation:jump 2.4s infinite;
+    animation:breathe 5s ease-in-out infinite;
   }
   .albert img { display:block; height:auto; }
-  /* base body: thin light rim so dark parts (shoe soles) don't vanish into the dark page */
   .albert .idle {
     width:100%;
-    filter:
-      drop-shadow(1px 0 0 rgba(215,225,205,.55))
-      drop-shadow(-1px 0 0 rgba(215,225,205,.55))
-      drop-shadow(0 1px 0 rgba(215,225,205,.55))
-      drop-shadow(0 -1px 0 rgba(215,225,205,.55))
-      drop-shadow(0 22px 34px rgba(0,0,0,.55))
-      drop-shadow(0 0 34px rgba(17,157,164,.22));
+    filter:drop-shadow(0 22px 34px rgba(0,0,0,.55)) drop-shadow(0 0 34px rgba(17,157,164,.22));
   }
   /* wave: only the hand rotates at the wrist — arm/hair/body stay static (no ghost, no gap) */
   .albert .wave-arm2 {
@@ -70,49 +63,15 @@
   }
   /* wave only outward (0 → +12) so the wrist stays connected */
   @keyframes waveArm2 { 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(12deg); } }
-  /* click → one extra-high super jump, then back to the loop */
-  .stage.super .albert { animation:superjump .95s cubic-bezier(.3,1.2,.4,1); }
-
-  /* full jump physics: rest → crouch → launch → float/hang → land squash → rebound → settle */
-  @keyframes jump {
-    0%   { transform:translateY(0)     rotate(0deg)     scale(1,1);       animation-timing-function:ease-in;  }
-    12%  { transform:translateY(0)     rotate(0deg)     scale(1,1);       animation-timing-function:ease-in;  }  /* rest beat */
-    20%  { transform:translateY(6px)   rotate(0deg)     scale(1.09,.86);  animation-timing-function:ease-out; }  /* anticipation crouch */
-    30%  { transform:translateY(-24px) rotate(-2deg)    scale(.9,1.16);   animation-timing-function:ease-out; }  /* explosive launch */
-    50%  { transform:translateY(-88px) rotate(-1deg)    scale(.97,1.05);  animation-timing-function:ease-in;  }  /* apex */
-    54%  { transform:translateY(-90px) rotate(0deg)     scale(.98,1.04);  animation-timing-function:ease-in;  }  /* hang */
-    68%  { transform:translateY(-22px) rotate(1deg)     scale(.97,1.05);  animation-timing-function:ease-in;  }  /* falling */
-    74%  { transform:translateY(8px)   rotate(1deg)     scale(1.13,.82);  animation-timing-function:ease-out; }  /* land impact */
-    82%  { transform:translateY(-9px)  rotate(0deg)     scale(.95,1.07);  animation-timing-function:ease-out; }  /* rebound */
-    88%  { transform:translateY(2px)   rotate(0deg)     scale(1.04,.97);  animation-timing-function:ease-out; }  /* micro-settle */
-    94%  { transform:translateY(0)     rotate(0deg)     scale(1,1);       animation-timing-function:ease-out; }
-    100% { transform:translateY(0)     rotate(0deg)     scale(1,1); }
-  }
-  @keyframes superjump {
-    0%   { transform:translateY(0)      scale(1,1);      animation-timing-function:ease-out; }
-    12%  { transform:translateY(10px)   scale(1.14,.8);  animation-timing-function:ease-out; }  /* deep crouch */
-    26%  { transform:translateY(-40px)  scale(.86,1.2);  animation-timing-function:ease-out; }  /* launch */
-    50%  { transform:translateY(-150px) scale(.96,1.07); animation-timing-function:ease-in;  }  /* high apex */
-    72%  { transform:translateY(-20px)  scale(.96,1.06); animation-timing-function:ease-in;  }
-    80%  { transform:translateY(10px)   scale(1.16,.8);  animation-timing-function:ease-out; }  /* hard land */
-    90%  { transform:translateY(-6px)   scale(.97,1.05); animation-timing-function:ease-out; }
-    100% { transform:translateY(0)      scale(1,1); }
+  @keyframes breathe {
+    0%,100% { transform:scale(1,1); }
+    50%     { transform:scale(1.012,.988); }
   }
   .stage::after {
     content:''; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%);
     width:60%; height:20px; border-radius:50%;
     background:radial-gradient(ellipse,rgba(17,157,164,.42),transparent 70%);
     filter:blur(8px); z-index:-1;
-    animation:groundJump 2.4s infinite;
-  }
-  /* shadow tracks the jump: heavy & wide on crouch/land, small & faint at apex */
-  @keyframes groundJump {
-    0%   { transform:translateX(-50%) scale(1);    opacity:.42; }
-    20%  { transform:translateX(-50%) scale(1.12); opacity:.5;  }  /* crouch — weight down */
-    50%  { transform:translateX(-50%) scale(.5);   opacity:.16; }  /* apex — far away */
-    74%  { transform:translateX(-50%) scale(1.15); opacity:.52; }  /* land — impact */
-    88%  { transform:translateX(-50%) scale(.95);  opacity:.4;  }
-    100% { transform:translateX(-50%) scale(1);    opacity:.42; }
   }
 
   /* Name lockup */
@@ -229,12 +188,6 @@ init(); draw();
     document.addEventListener('mouseleave', () => { stage.style.transform = ''; });
   }
 
-  function superJump() {
-    stage.classList.remove('super'); void stage.offsetWidth;   // restart
-    stage.classList.add('super');
-    setTimeout(() => stage.classList.remove('super'), 960);
-  }
-  stage.addEventListener('click', superJump);      // tap → extra-high jump
 })();
 </script>
 </body>
